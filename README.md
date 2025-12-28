@@ -18,13 +18,6 @@ src/
 └── utils/               # Utility functions
 ```
 
-## Key Features
-
-- **Framework**: React 18 + Vite
-- **Router**: React Router v6
-- **HTTP Client**: Axios for backend communication
-- **Testing**: Vitest with Testing Library
-- **UI**: File upload, progress tracking, results display
 
 ## Running the Application
 
