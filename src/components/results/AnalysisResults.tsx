@@ -3,7 +3,6 @@
  */
 
 import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { useJobStatus } from '../../hooks/useJobStatus';
 import { useAnalysisResults } from '../../hooks/useAnalysisResults';
 import Summary from './Summary';
@@ -18,10 +17,15 @@ import { getStatusClass } from '../../utils/formatters';
 import { STATUS_LABELS } from '../../utils/constants';
 import { generateMarkdown, downloadMarkdown, generateFilename } from '../../utils/markdownExporter';
 
-const AnalysisResults = ({ jobId, analysisId, autoRefresh = true }) => {
+interface AnalysisResultsProps {
+  jobId?: string;
+  analysisId?: string;
+  autoRefresh?: boolean;
+}
+
+const AnalysisResults: React.FC<AnalysisResultsProps> = ({ jobId, analysisId, autoRefresh = true }) => {
   const {
     status: jobStatus,
-    isPolling,
     error: jobError,
     refresh: refreshStatus
   } = useJobStatus(jobId, autoRefresh && !analysisId);
@@ -34,9 +38,9 @@ const AnalysisResults = ({ jobId, analysisId, autoRefresh = true }) => {
   } = useAnalysisResults();
 
   // Handle markdown download
-  const handleDownloadMarkdown = () => {
+  const handleDownloadMarkdown = (): void => {
     if (!results) return;
-    
+
     const markdown = generateMarkdown(results);
     const filename = generateFilename(results);
     downloadMarkdown(markdown, filename);
@@ -48,13 +52,10 @@ const AnalysisResults = ({ jobId, analysisId, autoRefresh = true }) => {
       fetchResults(analysisId);
     } else if (jobStatus && jobStatus.status === 'completed') {
       // Get analysis ID from job status and fetch results
-      const analysis = jobStatus.analysis || { id: jobStatus.id };
+      const analysis = (jobStatus as any).analysis || { id: jobStatus.id };
       fetchResults(analysis.id);
     }
-  }, [analysisId, jobStatus, fetchResults]);
-
-  // Don't try to fetch results repeatedly for incomplete analysis
-  const shouldShowResults = results || (jobStatus && jobStatus.status === 'completed');
+  }, [analysisId, jobStatus]);
 
   // Show job status while processing
   if (!results && jobStatus && jobStatus.status !== 'completed') {
@@ -64,33 +65,33 @@ const AnalysisResults = ({ jobId, analysisId, autoRefresh = true }) => {
           <div className="status-info">
             <div className="status-row">
               <span>Job ID:</span>
-              <span className="job-id">{jobStatus.job_id}</span>
+              <span className="job-id">{(jobStatus as any).job_id}</span>
             </div>
-            
+
             <div className="status-row">
               <span>Started:</span>
               <span>{new Date(jobStatus.created_at).toLocaleString()}</span>
             </div>
-            
-            {jobStatus.error_message && (
+
+            {(jobStatus as any).error_message && (
               <div className="status-row">
                 <span>Error:</span>
-                <span className="error-message">{jobStatus.error_message}</span>
+                <span className="error-message">{(jobStatus as any).error_message}</span>
               </div>
             )}
           </div>
-          
+
           {/* Progress Indicator */}
           {(jobStatus.status === 'pending' || jobStatus.status === 'processing') && (
-            <AnalysisProgress 
-              status={jobStatus.status} 
+            <AnalysisProgress
+              status={jobStatus.status}
               startTime={jobStatus.created_at}
             />
           )}
-          
+
           {jobStatus.status === 'failed' && (
-            <AnalysisProgress 
-              status="failed" 
+            <AnalysisProgress
+              status="failed"
               startTime={jobStatus.created_at}
             />
           )}
@@ -105,15 +106,15 @@ const AnalysisResults = ({ jobId, analysisId, autoRefresh = true }) => {
   }
 
   // Show error if results failed to load (but not for 409 errors)
-  if (resultsError && resultsError.status !== 409) {
+  if (resultsError && (resultsError as any).status !== 409) {
     return (
       <ErrorMessage
         error={resultsError}
         onRetry={() => {
           if (analysisId) {
             fetchResults(analysisId);
-          } else if (jobStatus) {
-            fetchResults(jobStatus.id);
+          } else if (jobStatus && (jobStatus.id || jobStatus.job_id)) {
+            fetchResults(jobStatus.id || jobStatus.job_id);
           }
         }}
       />
@@ -152,7 +153,7 @@ const AnalysisResults = ({ jobId, analysisId, autoRefresh = true }) => {
             </div>
             <div className="info-row">
               <span>Completed:</span>
-              <span>{new Date(results.completed_at).toLocaleString()}</span>
+              <span>{results.completed_at ? new Date(results.completed_at).toLocaleString() : 'N/A'}</span>
             </div>
             <div className="info-row">
               <span>Status:</span>
@@ -161,7 +162,7 @@ const AnalysisResults = ({ jobId, analysisId, autoRefresh = true }) => {
               </span>
             </div>
           </div>
-          
+
           <div className="analysis-actions">
             <Button
               onClick={handleDownloadMarkdown}
@@ -186,12 +187,6 @@ const AnalysisResults = ({ jobId, analysisId, autoRefresh = true }) => {
       <FactCheckTable factChecks={results.fact_checks} />
     </div>
   );
-};
-
-AnalysisResults.propTypes = {
-  jobId: PropTypes.string,
-  analysisId: PropTypes.string,
-  autoRefresh: PropTypes.bool
 };
 
 export default AnalysisResults;

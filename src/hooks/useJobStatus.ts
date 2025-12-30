@@ -5,20 +5,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { getJobStatus } from '../services/api';
 import { POLLING_INTERVAL } from '../utils/constants';
+import type { Job, ApiError } from '../types/api';
 
-export const useJobStatus = (jobId, autoStart = true) => {
-  const [status, setStatus] = useState(null);
-  const [isPolling, setIsPolling] = useState(false);
-  const [error, setError] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
+export const useJobStatus = (jobId?: string, autoStart: boolean = true) => {
+  const [status, setStatus] = useState<Job | null>(null);
+  const [isPolling, setIsPolling] = useState<boolean>(false);
+  const [error, setError] = useState<ApiError | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  const intervalRef = useRef(null);
-  const mountedRef = useRef(true);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const mountedRef = useRef<boolean>(true);
 
   /**
    * Fetch current job status
    */
-  const fetchStatus = async () => {
+  const fetchStatus = async (): Promise<void> => {
     if (!jobId) return;
 
     try {
@@ -37,7 +38,7 @@ export const useJobStatus = (jobId, autoStart = true) => {
     } catch (err) {
       console.error('Failed to fetch job status:', err);
       if (mountedRef.current) {
-        setError(err);
+        setError(err as ApiError);
         stopPolling();
       }
     }
@@ -46,7 +47,7 @@ export const useJobStatus = (jobId, autoStart = true) => {
   /**
    * Start polling for status updates
    */
-  const startPolling = () => {
+  const startPolling = (): void => {
     if (isPolling || !jobId) return;
 
     setIsPolling(true);
@@ -62,7 +63,7 @@ export const useJobStatus = (jobId, autoStart = true) => {
   /**
    * Stop polling
    */
-  const stopPolling = () => {
+  const stopPolling = (): void => {
     setIsPolling(false);
     
     if (intervalRef.current) {
@@ -74,7 +75,7 @@ export const useJobStatus = (jobId, autoStart = true) => {
   /**
    * Manually refresh status
    */
-  const refresh = () => {
+  const refresh = (): void => {
     fetchStatus();
   };
 

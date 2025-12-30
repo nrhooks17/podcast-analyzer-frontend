@@ -3,16 +3,21 @@
  */
 
 import React, { useState, useRef } from 'react';
-import PropTypes from 'prop-types';
 import { useFileUpload } from '../../hooks/useFileUpload';
 import ProgressBar from '../common/ProgressBar';
 import ErrorMessage from '../common/ErrorMessage';
 import Button from '../common/Button';
+import type { UploadResponse, ApiError } from '../../types/api';
 
-const FileUpload = ({ onUploadSuccess, onUploadError }) => {
-  const [dragOver, setDragOver] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const fileInputRef = useRef(null);
+interface FileUploadProps {
+  onUploadSuccess?: (transcript: UploadResponse) => void;
+  onUploadError?: (error: ApiError) => void;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess, onUploadError }) => {
+  const [dragOver, setDragOver] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     isUploading,
@@ -23,17 +28,17 @@ const FileUpload = ({ onUploadSuccess, onUploadError }) => {
     resetUpload
   } = useFileUpload();
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     setDragOver(true);
   };
 
-  const handleDragLeave = (e) => {
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     setDragOver(false);
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     setDragOver(false);
     
@@ -43,24 +48,24 @@ const FileUpload = ({ onUploadSuccess, onUploadError }) => {
     }
   };
 
-  const handleFileInputChange = (e) => {
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const files = e.target.files;
-    if (files.length > 0) {
+    if (files && files.length > 0) {
       handleFileSelect(files[0]);
     }
   };
 
-  const handleFileSelect = (file) => {
+  const handleFileSelect = (file: File): void => {
     setSelectedFile(file);
     resetUpload();
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (): Promise<void> => {
     if (!selectedFile) return;
 
     const result = await upload(selectedFile);
     
-    if (result.success) {
+    if (result.success && result.data) {
       if (onUploadSuccess) {
         onUploadSuccess(result.data);
       }
@@ -68,14 +73,14 @@ const FileUpload = ({ onUploadSuccess, onUploadError }) => {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-    } else {
+    } else if (result.error) {
       if (onUploadError) {
         onUploadError(result.error);
       }
     }
   };
 
-  const handleClear = () => {
+  const handleClear = (): void => {
     setSelectedFile(null);
     resetUpload();
     if (fileInputRef.current) {
@@ -83,7 +88,7 @@ const FileUpload = ({ onUploadSuccess, onUploadError }) => {
     }
   };
 
-  const openFileDialog = () => {
+  const openFileDialog = (): void => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -160,7 +165,7 @@ const FileUpload = ({ onUploadSuccess, onUploadError }) => {
           <h4>Upload Successful</h4>
           <p>{uploadSuccess.message}</p>
           <p>
-            <strong>Word Count:</strong> {uploadSuccess.transcript.word_count.toLocaleString()}
+            <strong>Word Count:</strong> {uploadSuccess.transcript.word_count?.toLocaleString()}
           </p>
         </div>
       )}
@@ -169,16 +174,12 @@ const FileUpload = ({ onUploadSuccess, onUploadError }) => {
       {uploadError && (
         <ErrorMessage
           error={uploadError}
-          onRetry={selectedFile ? handleUpload : null}
+          onRetry={selectedFile ? handleUpload : undefined}
         />
       )}
     </div>
   );
 };
 
-FileUpload.propTypes = {
-  onUploadSuccess: PropTypes.func,
-  onUploadError: PropTypes.func
-};
 
 export default FileUpload;

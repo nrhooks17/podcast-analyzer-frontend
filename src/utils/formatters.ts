@@ -2,12 +2,12 @@
  * Utility functions for formatting data display.
  */
 
+import { Status, Verdict } from './constants';
+
 /**
  * Format date for display
- * @param {string} dateString - ISO date string
- * @returns {string} Formatted date
  */
-export const formatDate = (dateString) => {
+export const formatDate = (dateString: string): string => {
   if (!dateString) return 'N/A';
   
   const date = new Date(dateString);
@@ -22,10 +22,8 @@ export const formatDate = (dateString) => {
 
 /**
  * Format file size in human readable format
- * @param {number} bytes - File size in bytes
- * @returns {string} Formatted file size
  */
-export const formatFileSize = (bytes) => {
+export const formatFileSize = (bytes: number): string => {
   if (!bytes) return '0 B';
   
   const k = 1024;
@@ -37,42 +35,33 @@ export const formatFileSize = (bytes) => {
 
 /**
  * Format confidence score as percentage
- * @param {number} confidence - Confidence score (0-1)
- * @returns {string} Formatted percentage
  */
-export const formatConfidence = (confidence) => {
+export const formatConfidence = (confidence: number | undefined | null): string => {
   if (confidence === undefined || confidence === null) return '0%';
   return Math.round(confidence * 100) + '%';
 };
 
 /**
  * Format word count with commas
- * @param {number} count - Word count
- * @returns {string} Formatted word count
  */
-export const formatWordCount = (count) => {
+export const formatWordCount = (count: number): string => {
   if (!count) return '0';
   return count.toLocaleString();
 };
 
 /**
  * Truncate text to specified length
- * @param {string} text - Text to truncate
- * @param {number} maxLength - Maximum length
- * @returns {string} Truncated text
  */
-export const truncateText = (text, maxLength = 100) => {
+export const truncateText = (text: string, maxLength: number = 100): string => {
   if (!text || text.length <= maxLength) return text;
   return text.substr(0, maxLength) + '...';
 };
 
 /**
  * Get CSS class for status
- * @param {string} status - Status value
- * @returns {string} CSS class name
  */
-export const getStatusClass = (status) => {
-  const classes = {
+export const getStatusClass = (status: Status): string => {
+  const classes: Record<Status, string> = {
     pending: 'status-pending',
     processing: 'status-processing',
     completed: 'status-completed',
@@ -83,11 +72,9 @@ export const getStatusClass = (status) => {
 
 /**
  * Get CSS class for verdict
- * @param {string} verdict - Verdict value
- * @returns {string} CSS class name
  */
-export const getVerdictClass = (verdict) => {
-  const classes = {
+export const getVerdictClass = (verdict: Verdict): string => {
+  const classes: Record<Verdict, string> = {
     true: 'verdict-true',
     false: 'verdict-false',
     partially_true: 'verdict-partially-true',

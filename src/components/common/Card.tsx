@@ -3,9 +3,15 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
-const Card = ({ 
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+  title?: string;
+  subtitle?: string;
+  className?: string;
+}
+
+const Card: React.FC<CardProps> = ({ 
   children, 
   title, 
   subtitle,
@@ -27,13 +33,6 @@ const Card = ({
       </div>
     </div>
   );
-};
-
-Card.propTypes = {
-  children: PropTypes.node.isRequired,
-  title: PropTypes.string,
-  subtitle: PropTypes.string,
-  className: PropTypes.string
 };
 
 export default Card;

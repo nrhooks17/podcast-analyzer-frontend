@@ -9,10 +9,10 @@ import AnalysisPage from './pages/AnalysisPage';
 import HistoryPage from './pages/HistoryPage';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
-const App = () => {
+const App: React.FC = () => {
   const location = useLocation();
 
-  const isActiveRoute = (path) => {
+  const isActiveRoute = (path: string): boolean => {
     if (path === '/' && location.pathname === '/') return true;
     if (path !== '/' && location.pathname.startsWith(path)) return true;
     return false;
@@ -69,7 +69,7 @@ const App = () => {
 };
 
 // Simple 404 page
-const NotFoundPage = () => (
+const NotFoundPage: React.FC = () => (
   <div className="not-found">
     <h2>Page Not Found</h2>
     <p>The page you're looking for doesn't exist.</p>

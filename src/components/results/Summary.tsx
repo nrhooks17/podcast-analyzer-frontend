@@ -3,10 +3,14 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import Card from '../common/Card';
 
-const Summary = ({ summary, className = '' }) => {
+interface SummaryProps {
+  summary: string;
+  className?: string;
+}
+
+const Summary: React.FC<SummaryProps> = ({ summary, className = '' }) => {
   if (!summary) return null;
 
   return (
@@ -16,11 +20,6 @@ const Summary = ({ summary, className = '' }) => {
       </div>
     </Card>
   );
-};
-
-Summary.propTypes = {
-  summary: PropTypes.string.isRequired,
-  className: PropTypes.string
 };
 
 export default Summary;

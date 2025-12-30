@@ -9,24 +9,25 @@ import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import { startAnalysis } from '../services/api';
 import ErrorMessage from '../components/common/ErrorMessage';
+import type { UploadResponse, ApiError } from '../types/api';
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const [uploadedTranscript, setUploadedTranscript] = useState(null);
-  const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
-  const [analysisError, setAnalysisError] = useState(null);
+  const [uploadedTranscript, setUploadedTranscript] = useState<UploadResponse | null>(null);
+  const [isStartingAnalysis, setIsStartingAnalysis] = useState<boolean>(false);
+  const [analysisError, setAnalysisError] = useState<ApiError | null>(null);
 
-  const handleUploadSuccess = (transcript) => {
+  const handleUploadSuccess = (transcript: UploadResponse): void => {
     setUploadedTranscript(transcript);
     setAnalysisError(null);
   };
 
-  const handleUploadError = (error) => {
+  const handleUploadError = (error: ApiError): void => {
     console.error('Upload error:', error);
     setUploadedTranscript(null);
   };
 
-  const handleStartAnalysis = async () => {
+  const handleStartAnalysis = async (): Promise<void> => {
     if (!uploadedTranscript) return;
 
     setIsStartingAnalysis(true);
@@ -40,7 +41,7 @@ const HomePage = () => {
       
     } catch (error) {
       console.error('Failed to start analysis:', error);
-      setAnalysisError(error);
+      setAnalysisError(error as ApiError);
     } finally {
       setIsStartingAnalysis(false);
     }

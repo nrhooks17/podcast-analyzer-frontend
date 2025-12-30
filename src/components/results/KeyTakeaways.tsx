@@ -3,10 +3,14 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import Card from '../common/Card';
 
-const KeyTakeaways = ({ takeaways, className = '' }) => {
+interface KeyTakeawaysProps {
+  takeaways?: string[];
+  className?: string;
+}
+
+const KeyTakeaways: React.FC<KeyTakeawaysProps> = ({ takeaways, className = '' }) => {
   if (!takeaways || takeaways.length === 0) {
     return (
       <Card title="Key Takeaways" className={className}>
@@ -26,11 +30,6 @@ const KeyTakeaways = ({ takeaways, className = '' }) => {
       </ul>
     </Card>
   );
-};
-
-KeyTakeaways.propTypes = {
-  takeaways: PropTypes.arrayOf(PropTypes.string),
-  className: PropTypes.string
 };
 
 export default KeyTakeaways;

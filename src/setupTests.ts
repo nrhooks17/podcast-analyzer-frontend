@@ -5,4 +5,7 @@
 import '@testing-library/jest-dom';
 
 // Mock environment variables for tests
-import.meta.env.VITE_API_BASE_URL = 'http://localhost:8000';
+Object.defineProperty(import.meta.env, 'VITE_API_BASE_URL', {
+  value: 'http://localhost:8000',
+  writable: true
+});

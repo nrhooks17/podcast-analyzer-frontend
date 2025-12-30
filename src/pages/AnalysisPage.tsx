@@ -8,7 +8,7 @@ import AnalysisResults from '../components/results/AnalysisResults';
 import Button from '../components/common/Button';
 import ErrorMessage from '../components/common/ErrorMessage';
 
-const AnalysisPage = () => {
+const AnalysisPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
@@ -71,8 +71,8 @@ const AnalysisPage = () => {
 
       <div className="results-container">
         <AnalysisResults 
-          jobId={jobId} 
-          analysisId={analysisId}
+          jobId={jobId || undefined} 
+          analysisId={analysisId || undefined}
           autoRefresh={true}
         />
       </div>

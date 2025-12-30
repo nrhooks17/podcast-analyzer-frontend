@@ -3,9 +3,16 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
+import { ApiError } from '../../types/api';
 
-const ErrorMessage = ({ 
+interface ErrorMessageProps {
+  error?: ApiError | null;
+  onRetry?: () => void;
+  className?: string;
+  showDetails?: boolean;
+}
+
+const ErrorMessage: React.FC<ErrorMessageProps> = ({ 
   error, 
   onRetry, 
   className = '',
@@ -38,18 +45,6 @@ const ErrorMessage = ({
       </div>
     </div>
   );
-};
-
-ErrorMessage.propTypes = {
-  error: PropTypes.shape({
-    message: PropTypes.string,
-    code: PropTypes.string,
-    correlationId: PropTypes.string,
-    details: PropTypes.string
-  }),
-  onRetry: PropTypes.func,
-  className: PropTypes.string,
-  showDetails: PropTypes.bool
 };
 
 export default ErrorMessage;

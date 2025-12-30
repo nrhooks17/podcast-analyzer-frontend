@@ -2,15 +2,35 @@
  * Utility functions for exporting analysis results to markdown format.
  */
 
+import { Status, Verdict } from './constants';
+
+// Type definitions for analysis results
+export interface FactCheck {
+  claim: string;
+  verdict: Verdict;
+  confidence: number;
+  evidence?: string;
+  sources?: string[];
+}
+
+export interface AnalysisResults {
+  id: string;
+  transcript_filename?: string;
+  transcript_title?: string;
+  status: Status;
+  completed_at?: string;
+  summary?: string;
+  takeaways?: string[];
+  fact_checks?: FactCheck[];
+}
+
 /**
  * Generate markdown content from analysis results
- * @param {Object} results - Analysis results object
- * @returns {string} Formatted markdown content
  */
-export const generateMarkdown = (results) => {
+export const generateMarkdown = (results: AnalysisResults): string => {
   if (!results) return '';
 
-  const sections = [];
+  const sections: string[] = [];
 
   // Header
   sections.push('# Podcast Analysis Results');
@@ -83,10 +103,8 @@ export const generateMarkdown = (results) => {
 
 /**
  * Download markdown content as a file
- * @param {string} content - Markdown content to download
- * @param {string} filename - Name of the file to download
  */
-export const downloadMarkdown = (content, filename = 'analysis-results.md') => {
+export const downloadMarkdown = (content: string, filename: string = 'analysis-results.md'): void => {
   const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   
@@ -103,10 +121,8 @@ export const downloadMarkdown = (content, filename = 'analysis-results.md') => {
 
 /**
  * Generate filename for the markdown export
- * @param {Object} results - Analysis results object
- * @returns {string} Generated filename
  */
-export const generateFilename = (results) => {
+export const generateFilename = (results: AnalysisResults): string => {
   if (!results) return 'analysis-results.md';
   
   const date = results.completed_at 

@@ -3,9 +3,17 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
-const ProgressBar = ({ 
+type ProgressBarVariant = 'primary' | 'success' | 'warning' | 'danger';
+
+interface ProgressBarProps {
+  progress: number;
+  showLabel?: boolean;
+  className?: string;
+  variant?: ProgressBarVariant;
+}
+
+const ProgressBar: React.FC<ProgressBarProps> = ({ 
   progress, 
   showLabel = true, 
   className = '',
@@ -20,20 +28,13 @@ const ProgressBar = ({
         style={{ width: `${percentage}%` }}
         role="progressbar"
         aria-valuenow={percentage}
-        aria-valuemin="0"
-        aria-valuemax="100"
+        aria-valuemin={0}
+        aria-valuemax={100}
       >
         {showLabel && <span>{percentage}%</span>}
       </div>
     </div>
   );
-};
-
-ProgressBar.propTypes = {
-  progress: PropTypes.number.isRequired,
-  showLabel: PropTypes.bool,
-  className: PropTypes.string,
-  variant: PropTypes.oneOf(['primary', 'success', 'warning', 'danger'])
 };
 
 export default ProgressBar;

@@ -2,15 +2,22 @@
  * Custom hook for managing analysis results data.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { getAnalysisResults, getAnalysisResultsList } from '../services/api';
+import type { AnalysisResult, ApiError } from '../types/api';
+
+interface Pagination {
+  page: number;
+  perPage: number;
+  total: number;
+}
 
 export const useAnalysisResults = () => {
-  const [results, setResults] = useState(null);
-  const [resultsList, setResultsList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState({
+  const [results, setResults] = useState<AnalysisResult | null>(null);
+  const [resultsList, setResultsList] = useState<AnalysisResult[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<ApiError | null>(null);
+  const [pagination, setPagination] = useState<Pagination>({
     page: 1,
     perPage: 20,
     total: 0
@@ -18,9 +25,8 @@ export const useAnalysisResults = () => {
 
   /**
    * Fetch analysis results by ID
-   * @param {string} analysisId - Analysis ID
    */
-  const fetchResults = useCallback(async (analysisId) => {
+  const fetchResults = async (analysisId: string): Promise<void> => {
     if (!analysisId) return;
 
     setLoading(true);
@@ -31,30 +37,31 @@ export const useAnalysisResults = () => {
       setResults(data);
     } catch (err) {
       console.error('Failed to fetch analysis results:', err);
-      
+
+      const apiError = err as ApiError;
+
       // If analysis is not completed (409 error), don't treat as error
-      if (err.status === 409 || err.code === 'ANALYSIS_NOT_COMPLETED') {
+      if (apiError.status === 409 || apiError.code === 'ANALYSIS_NOT_COMPLETED') {
         setResults(null);
         setError(null);
       } else {
-        setError(err);
+        setError(apiError);
         setResults(null);
       }
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   /**
    * Fetch list of analysis results
-   * @param {number} page - Page number
-   * @param {number} perPage - Items per page
    */
-  const fetchResultsList = useCallback(async (page = 1, perPage = 20) => {
+  const fetchResultsList = async (page: number = 1, perPage: number = 20): Promise<void> => {
     setLoading(true);
     setError(null);
 
     try {
+      console.log("getting analysis result list");
       const data = await getAnalysisResultsList(page, perPage);
       setResultsList(data.results);
       setPagination({
@@ -64,17 +71,18 @@ export const useAnalysisResults = () => {
       });
     } catch (err) {
       console.error('Failed to fetch analysis results list:', err);
-      setError(err);
+      setError(err as ApiError);
       setResultsList([]);
     } finally {
+      console.log("setting loading to false.")
       setLoading(false);
     }
-  }, []);
+  };
 
   /**
    * Clear current results
    */
-  const clearResults = () => {
+  const clearResults = (): void => {
     setResults(null);
     setError(null);
   };
@@ -82,7 +90,7 @@ export const useAnalysisResults = () => {
   /**
    * Clear results list
    */
-  const clearResultsList = () => {
+  const clearResultsList = (): void => {
     setResultsList([]);
     setError(null);
     setPagination({ page: 1, perPage: 20, total: 0 });

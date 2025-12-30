@@ -3,10 +3,23 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
+import { Status } from '../../utils/constants';
 
-const AnalysisProgress = ({ status, startTime }) => {
-  const stages = [
+interface AnalysisProgressProps {
+  status: Status;
+  startTime?: string;
+}
+
+interface Stage {
+  id: string;
+  label: string;
+  description: string;
+}
+
+type StageStatus = 'pending' | 'active' | 'completed' | 'failed';
+
+const AnalysisProgress: React.FC<AnalysisProgressProps> = ({ status, startTime }) => {
+  const stages: Stage[] = [
     { id: 'pending', label: 'Queued', description: 'Waiting for processing' },
     { id: 'processing', label: 'Processing', description: 'Analyzing transcript' },
     { id: 'summarizing', label: 'Summarizing', description: 'Generating summary' },
@@ -16,7 +29,7 @@ const AnalysisProgress = ({ status, startTime }) => {
   ];
 
   // Determine current stage based on status and elapsed time
-  const getCurrentStage = () => {
+  const getCurrentStage = (): number => {
     if (status === 'pending') return 0;
     if (status === 'failed') return -1;
     if (status === 'completed') return stages.length - 1;
@@ -49,7 +62,7 @@ const AnalysisProgress = ({ status, startTime }) => {
     );
   }
 
-  const getStageStatus = (stageIndex) => {
+  const getStageStatus = (stageIndex: number): StageStatus => {
     if (currentStage === -1) return 'failed';
     if (stageIndex < currentStage) return 'completed';
     if (stageIndex === currentStage) return 'active';
@@ -106,11 +119,6 @@ const AnalysisProgress = ({ status, startTime }) => {
       </div>
     </div>
   );
-};
-
-AnalysisProgress.propTypes = {
-  status: PropTypes.oneOf(['pending', 'processing', 'completed', 'failed']).isRequired,
-  startTime: PropTypes.string
 };
 
 export default AnalysisProgress;

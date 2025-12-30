@@ -2,21 +2,30 @@
  * Error boundary component for handling React errors gracefully.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import { Component, ReactNode, ErrorInfo } from 'react';
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error: Error): Partial<ErrorBoundaryState> {
     // Update state so the next render will show the fallback UI
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log the error to console in development
     console.error('Error caught by boundary:', error, errorInfo);
     
@@ -27,11 +36,11 @@ class ErrorBoundary extends React.Component {
     });
   }
 
-  handleRetry = () => {
+  handleRetry = (): void => {
     this.setState({ hasError: false, error: null, errorInfo: null });
   };
 
-  render() {
+  render(): ReactNode {
     if (this.state.hasError) {
       const isDevelopment = import.meta.env.DEV;
       
@@ -73,9 +82,5 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-
-ErrorBoundary.propTypes = {
-  children: PropTypes.node.isRequired
-};
 
 export default ErrorBoundary;

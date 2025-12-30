@@ -3,9 +3,19 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
-const Button = ({
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'secondary' | 'success' | 'danger';
+  size?: 'small' | 'medium' | 'large';
+  disabled?: boolean;
+  loading?: boolean;
+  className?: string;
+}
+
+const Button: React.FC<ButtonProps> = ({
   children,
   onClick,
   type = 'button',
@@ -39,17 +49,6 @@ const Button = ({
       {children}
     </button>
   );
-};
-
-Button.propTypes = {
-  children: PropTypes.node.isRequired,
-  onClick: PropTypes.func,
-  type: PropTypes.oneOf(['button', 'submit', 'reset']),
-  variant: PropTypes.oneOf(['primary', 'secondary', 'success', 'danger']),
-  size: PropTypes.oneOf(['small', 'medium', 'large']),
-  disabled: PropTypes.bool,
-  loading: PropTypes.bool,
-  className: PropTypes.string
 };
 
 export default Button;

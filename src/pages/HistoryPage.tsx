@@ -11,10 +11,11 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import { formatDate, getStatusClass, truncateText } from '../utils/formatters';
 import { STATUS_LABELS } from '../utils/constants';
+import type { AnalysisResult } from '../types/api';
 
-const HistoryPage = () => {
+const HistoryPage: React.FC = () => {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const perPage = 10;
 
   const {
@@ -27,13 +28,13 @@ const HistoryPage = () => {
 
   useEffect(() => {
     fetchResultsList(currentPage, perPage);
-  }, [currentPage, fetchResultsList]);
+  }, [currentPage]);
 
-  const handleViewResults = (analysis) => {
+  const handleViewResults = (analysis: AnalysisResult): void => {
     navigate(`/analysis?analysisId=${analysis.id}`);
   };
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (newPage: number): void => {
     setCurrentPage(newPage);
   };
 
@@ -43,14 +44,14 @@ const HistoryPage = () => {
     return <LoadingSpinner message="Loading analysis history..." />;
   }
 
-  if (error && resultsList.length === 0) {
-    return (
-      <ErrorMessage
-        error={error}
-        onRetry={() => fetchResultsList(currentPage, perPage)}
-      />
-    );
-  }
+  // if (error && resultsList.length === 0) {
+  //   return (
+  //     <ErrorMessage
+  //       error={error}
+  //       onRetry={() => fetchResultsList(currentPage, perPage)}
+  //     />
+  //   );
+  // }
 
   return (
     <div className="history-page">
@@ -66,7 +67,7 @@ const HistoryPage = () => {
             </Button>
           </div>
         </div>
-        
+
         {pagination.total > 0 && (
           <div className="results-summary text-section">
             <p>
@@ -126,13 +127,13 @@ const HistoryPage = () => {
                       <strong>{analysis.takeaways.length}</strong> takeaways
                     </span>
                   )}
-                  
+
                   {analysis.fact_checks && (
                     <span className="stat">
                       <strong>{analysis.fact_checks.length}</strong> fact checks
                     </span>
                   )}
-                  
+
                   {analysis.completed_at && (
                     <span className="stat">
                       Completed {formatDate(analysis.completed_at)}
@@ -146,8 +147,8 @@ const HistoryPage = () => {
                     variant={analysis.status === 'completed' ? 'primary' : 'secondary'}
                     disabled={analysis.status === 'failed'}
                   >
-                    {analysis.status === 'completed' ? 'View Results' : 
-                     analysis.status === 'failed' ? 'Failed' : 'View Status'}
+                    {analysis.status === 'completed' ? 'View Results' :
+                      analysis.status === 'failed' ? 'Failed' : 'View Status'}
                   </Button>
                 </div>
               </div>

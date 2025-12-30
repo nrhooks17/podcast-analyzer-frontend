@@ -3,12 +3,17 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import Card from '../common/Card';
+import { FactCheck } from '../../types/api';
 import { getVerdictClass, formatConfidence } from '../../utils/formatters';
 import { VERDICT_LABELS } from '../../utils/constants';
 
-const FactCheckTable = ({ factChecks, className = '' }) => {
+interface FactCheckTableProps {
+  factChecks?: FactCheck[];
+  className?: string;
+}
+
+const FactCheckTable: React.FC<FactCheckTableProps> = ({ factChecks, className = '' }) => {
   if (!factChecks || factChecks.length === 0) {
     return (
       <Card title="Fact Check Results" className={className}>
@@ -31,7 +36,7 @@ const FactCheckTable = ({ factChecks, className = '' }) => {
           </thead>
           <tbody>
             {factChecks.map((factCheck, index) => (
-              <tr key={factCheck.id || index}>
+              <tr key={index}>
                 <td>
                   <div className="claim-text">
                     {factCheck.claim}
@@ -95,20 +100,6 @@ const FactCheckTable = ({ factChecks, className = '' }) => {
       </div>
     </Card>
   );
-};
-
-FactCheckTable.propTypes = {
-  factChecks: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      claim: PropTypes.string.isRequired,
-      verdict: PropTypes.string.isRequired,
-      confidence: PropTypes.number.isRequired,
-      evidence: PropTypes.string,
-      sources: PropTypes.arrayOf(PropTypes.string)
-    })
-  ),
-  className: PropTypes.string
 };
 
 export default FactCheckTable;

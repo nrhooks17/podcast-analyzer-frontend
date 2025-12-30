@@ -5,20 +5,35 @@
 import { useState } from 'react';
 import { uploadTranscript } from '../services/api';
 import { MAX_FILE_SIZE, ALLOWED_EXTENSIONS } from '../utils/constants';
+import type { ApiError, UploadResponse } from '../types/api';
+
+interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+interface UploadResult {
+  success: boolean;
+  data?: UploadResponse;
+  error?: ApiError;
+}
+
+interface UploadSuccess {
+  message: string;
+  transcript: UploadResponse;
+}
 
 export const useFileUpload = () => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadError, setUploadError] = useState(null);
-  const [uploadSuccess, setUploadSuccess] = useState(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadError, setUploadError] = useState<ApiError | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<UploadSuccess | null>(null);
 
   /**
    * Validate file before upload
-   * @param {File} file - File to validate
-   * @returns {Object} Validation result
    */
-  const validateFile = (file) => {
-    const errors = [];
+  const validateFile = (file: File | null): ValidationResult => {
+    const errors: string[] = [];
 
     if (!file) {
       errors.push('Please select a file to upload');
@@ -32,8 +47,8 @@ export const useFileUpload = () => {
     }
 
     // Check file extension
-    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-    if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(fileExtension as any)) {
       errors.push(`File type not supported. Please upload ${ALLOWED_EXTENSIONS.join(' or ')} files`);
     }
 
@@ -45,10 +60,8 @@ export const useFileUpload = () => {
 
   /**
    * Upload file with progress tracking
-   * @param {File} file - File to upload
-   * @returns {Promise} Upload result
    */
-  const upload = async (file) => {
+  const upload = async (file: File): Promise<UploadResult> => {
     // Reset states
     setUploadError(null);
     setUploadSuccess(null);
@@ -57,8 +70,8 @@ export const useFileUpload = () => {
     // Validate file
     const validation = validateFile(file);
     if (!validation.valid) {
-      const error = {
-        code: 'VALIDATION_ERROR',
+      const error: ApiError = {
+        code: 'VALIDATION_ERROR' as any,
         message: validation.errors.join('. ')
       };
       setUploadError(error);
@@ -81,8 +94,9 @@ export const useFileUpload = () => {
 
     } catch (error) {
       console.error('Upload failed:', error);
-      setUploadError(error);
-      return { success: false, error };
+      const apiError = error as ApiError;
+      setUploadError(apiError);
+      return { success: false, error: apiError };
 
     } finally {
       setIsUploading(false);
@@ -96,7 +110,7 @@ export const useFileUpload = () => {
   /**
    * Reset upload state
    */
-  const resetUpload = () => {
+  const resetUpload = (): void => {
     setIsUploading(false);
     setUploadProgress(0);
     setUploadError(null);
